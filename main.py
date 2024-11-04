@@ -7,4 +7,4 @@ import receptionist as rcpst
 
 
 if __name__ == '__main__':
-    utils.file_write_str("file", "popopopo")
+	pass
