@@ -1,7 +1,10 @@
-# This is a sample Python script.
+import utils
+import administrator as admin
+import doctor
+import nurse
+import patient
+import receptionist as rcpst
 
-def print_hi(name):
-    print(f'Hi, {name}')
 
 if __name__ == '__main__':
-    print_hi('PyCharm')
+    pass
