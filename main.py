@@ -6,5 +6,25 @@ import patient
 import receptionist as rcpst
 
 
-if __name__ == '__main__':
+#================_STATE_===============
+state = {"IS_RUNNING": True}
+
+#==============_FUNCTIONS_=============
+def on_start():
 	pass
+
+def on_exit():
+	pass
+
+lambdas = [
+	lambda: print("`Administrator interface`"),
+	lambda: print("`Doctor interface`"),
+	lambda: print("`Nurse interface`"),
+	lambda: print("`Patient interface`"),
+	lambda: print("`Receptionist interface`"),
+]
+
+
+#=============ENTRY_POINT==============
+if __name__ == '__main__':
+	utils.app_run(on_start, on_exit, lambdas, state)
