@@ -17,11 +17,11 @@ def on_exit():
 	pass
 
 lambdas = [
-	lambda: print("`Administrator interface`"),
-	lambda: print("`Doctor interface`"),
-	lambda: print("`Nurse interface`"),
-	lambda: print("`Patient interface`"),
-	lambda: print("`Receptionist interface`"),
+	lambda: print("`Administrator interface`. Empty for now. Returning to log in menu..."),
+	lambda: print("`Doctor interface`. Empty for now. Returning to log in menu..."),
+	lambda: print("`Nurse interface`. Empty for now. Returning to log in menu..."),
+	lambda: print("`Patient interface`. Empty for now. Returning to log in menu..."),
+	lambda: print("`Receptionist interface`. Empty for now. Returning to log in menu..."),
 ]
 
 
