@@ -1,58 +1,89 @@
 #==============_GENERAL_=============
+def build_callable(function_meta: list):
+	"""Makes a function from [definition, arguments] list"""
+	return lambda fun = function_meta[0], args = function_meta[1]: fun(*args)
+
+def callables_flatten(callable_2d_list: list[list]):
+	"""Makes functions from [[definition, arguments], [...,...], ...] 2D list"""
+	return [build_callable(row) for row in callable_2d_list]
+
 def callables(callable_list: list) -> bool:
+	"""Checks if all list elements are callables (functions/methods)."""
 	if not all(callable(f) for f in callable_list):
 		return False
 	return True
 
+def callables_2d(callable_2d_list: list[list]) -> bool:
+	return callables(callables_flatten(callable_2d_list))
+
+
 #==============____APP____=============
-def app_run(start_callback: callable, exit_callback: callable, login_functions: list, app_state: dict):
+def app_run(start_callback: callable, exit_callback: callable, menu_functions: list, app_state: dict):
+	"""
+	Runs an application.
+	:param start_callback: function called before running the application.
+	:param exit_callback: function called before shutting down the application.
+	:param menu_functions: functions to call menu and functions called by user choice in menu (with list of arguments).
+	:param app_state: initial state of the application
+	"""
 	while app_state["IS_RUNNING"]:
 		try:
 			if not callable(exit_callback):
 				raise TypeError(ERR_PARAM_NOT_CALLABLE)
 			if not callable(start_callback):
 				raise TypeError(ERR_PARAM_NOT_CALLABLE)
-			if not callables(login_functions):
+			if not callables_2d(menu_functions):
 				raise TypeError(ERR_MENU_ELEM_NOT_CALLABLE)
 
-			if not cli_call_menu_start(start_callback, login_functions):
-				app_exit(exit_callback)
-				app_state["IS_RUNNING"] = False
+			try:
+				clui_call_menu_start(menu_functions)
+				app_state["EXIT_CODE"] = 0
+				app_exit(exit_callback, app_state)
+			except TypeError as e:
+				print("Type error: " + str(e))
+			except ValueError as e:
+				print("Value error: " + str(e))
+
 		except TypeError as e:
 			print("Type error: " + str(e))
+			app_state["EXIT_CODE"] = 2001
+			app_exit(exit_callback, app_state)
 		except ValueError as e:
 			print("Value error: " + str(e))
+			app_state["EXIT_CODE"] = 2002
+			app_exit(exit_callback, app_state)
 
-def app_exit(exit_callback: callable):
+
+def app_exit(exit_callback: callable, app_state: dict):
+	"""Finishes an application.
+	:param app_state: application state on the end of execution
+	:param exit_callback: function called before shutting down the application."""
+	app_state["IS_RUNNING"] = False
 	exit_callback()
 	print(MSG_EXIT)
+	if app_state["DEBUG"]:
+		print("Exit code: " + str(app_state["EXIT_CODE"]))
 
 
-#==============____CLI____==============
-#Command line interface
-def cli_call_menu_start(start_callback: callable, login_functions: list) -> bool:
-	if not callables(login_functions):
-		return False
-	start_callback()
-	option: int = int(input(MENU_START))
-	if option == 0:
-		return False
-	if option == 1:
-		cli_call_menu_login(login_functions)
-		return True
-	raise ValueError(ERR_INVALID_OPTION)
-
-def cli_call_menu_login(login_functions: list):
-	option: int = -1
-	while option != 0:
-		option = int(input(MENU_LOGIN))
+#==============____CLUI____==============
+#Command line user interface
+def clui_call_menu_start(functions: list):
+	while True:
+		option: int = int(input(MENU_START))
 		if option == 0:
 			return
-		if option in range(1, 5):
-			login_functions[option-1]()
-		else:
-			raise ValueError(ERR_INVALID_OPTION)
+		if option in range(1, len(functions) + 1):
+			build_callable(functions[option - 1])()
+		else: raise ValueError(ERR_INVALID_OPTION)
 
+def clui_call_menu_login(functions: list):
+	while True:
+		option: int = int(input(MENU_LOGIN))
+		if option == 0:
+			return
+		if option in range(1, len(functions) + 1):
+			build_callable(functions[option - 1])()
+		else: raise ValueError(ERR_INVALID_OPTION)
 
 #============____STRINGS____============
 MENU_START: str = """
