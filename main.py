@@ -1,4 +1,4 @@
-import utils
+import engine
 import administrator as admin
 import doctor
 import nurse
@@ -17,7 +17,7 @@ def on_exit():
 	pass
 
 functions = [
-	[utils.clui_call_menu_login, [
+	[engine.clui_call_menu_login, [
 		[
 			[lambda: print("`Administrator interface`. Empty for now. Returning to log in menu..."), []],
 			[lambda: print("`Doctor interface`. Empty for now. Returning to log in menu..."), []],
@@ -31,4 +31,4 @@ functions = [
 
 #=============ENTRY_POINT==============
 if __name__ == '__main__':
-	utils.app_run(on_start, on_exit, functions, state)
+	engine.app_run(on_start, on_exit, functions, state)
