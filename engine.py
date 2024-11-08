@@ -1,4 +1,4 @@
-#==============_GENERAL_=============
+# ==============_GENERAL_=============
 def build_callable(function_meta: list):
 	"""Makes a function from [definition, arguments] list"""
 	return lambda fun = function_meta[0], args = function_meta[1]: fun(*args)
@@ -17,7 +17,7 @@ def callables_2d(callable_2d_list: list[list]) -> bool:
 	return callables(callables_flatten(callable_2d_list))
 
 
-#==============____APP____=============
+# ==============____APP____=============
 def app_run(start_callback: callable, exit_callback: callable, menu_functions: list, app_state: dict):
 	"""
 	Runs an application.
@@ -65,7 +65,7 @@ def app_exit(exit_callback: callable, app_state: dict):
 		print("Exit code: " + str(app_state["EXIT_CODE"]))
 
 
-#==============____CLUI____==============
+# ==============____CLUI____==============
 #Command line user interface
 def clui_call_menu_start(functions: list):
 	while True:
@@ -85,7 +85,7 @@ def clui_call_menu_login(functions: list):
 			build_callable(functions[option - 1])()
 		else: raise ValueError(ERR_INVALID_OPTION)
 
-#============____STRINGS____============
+# ============____STRINGS____============
 MENU_START: str = """
 ==========
 1. Log in
@@ -115,7 +115,7 @@ def str_add_extension_txt(filename: str) -> str:
 	return filename + ".txt"
 
 
-#=============____FILES____=============
+# =============____FILES____=============
 def file_create(filename: str) -> bool:
 	"""
 	Creates an empty text file if it doesn't exist.

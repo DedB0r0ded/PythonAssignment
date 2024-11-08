@@ -6,10 +6,10 @@ import patient
 import receptionist as rcpst
 
 
-#================_STATE_===============
+# ================_STATE_===============
 state = {"IS_RUNNING": True, "DEBUG": True}
 
-#==============_FUNCTIONS_=============
+# ==============_FUNCTIONS_=============
 def on_start():
 	pass
 
@@ -29,6 +29,6 @@ functions = [
 ]
 
 
-#=============ENTRY_POINT==============
+# =============ENTRY_POINT==============
 if __name__ == '__main__':
 	engine.app_run(on_start, on_exit, functions, state)
