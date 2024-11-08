@@ -7,7 +7,7 @@ import receptionist as rcpst
 
 
 #================_STATE_===============
-state = {"IS_RUNNING": True}
+state = {"IS_RUNNING": True, "DEBUG": True}
 
 #==============_FUNCTIONS_=============
 def on_start():
@@ -16,15 +16,19 @@ def on_start():
 def on_exit():
 	pass
 
-lambdas = [
-	lambda: print("`Administrator interface`"),
-	lambda: print("`Doctor interface`"),
-	lambda: print("`Nurse interface`"),
-	lambda: print("`Patient interface`"),
-	lambda: print("`Receptionist interface`"),
+functions = [
+	[utils.clui_call_menu_login, [
+		[
+			[lambda: print("`Administrator interface`. Empty for now. Returning to log in menu..."), []],
+			[lambda: print("`Doctor interface`. Empty for now. Returning to log in menu..."), []],
+			[lambda: print("`Nurse interface`. Empty for now. Returning to log in menu..."), []],
+			[lambda: print("`Patient interface`. Empty for now. Returning to log in menu..."), []],
+			[lambda: print("`Receptionist interface`. Empty for now. Returning to log in menu..."), []],
+	  ]]
+	],
 ]
 
 
 #=============ENTRY_POINT==============
 if __name__ == '__main__':
-	utils.app_run(on_start, on_exit, lambdas, state)
+	utils.app_run(on_start, on_exit, functions, state)
