@@ -1,9 +1,9 @@
 import engine
-import administrator.out as admin
-import doctor.out as doctor
-import nurse.out as nurse
-import patient.out as patient
-import receptionist.out as receptionist
+import administrator as admin
+import doctor
+import nurse
+import patient
+import receptionist
 
 
 # ================_STATE_===============
