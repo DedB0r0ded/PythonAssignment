@@ -85,10 +85,14 @@ def clui_call_menu_login(functions: list):
       build_callable(functions[option - 1])()
     else: raise ValueError(ERR_INVALID_OPTION)
 
+def clui_print_state(app_state: dict):
+  for key, value in app_state.items():
+    print(str(key) + ": " + str(value))
 # ============____STRINGS____============
 MENU_START: str = """
 ==========
 1. Log in
+2. Application info
 0. Exit
 ==========
 """

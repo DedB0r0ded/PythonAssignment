@@ -26,6 +26,9 @@ functions = [
       [lambda: print("`Receptionist interface`. Empty for now. Returning to log in menu..."), []],
     ]]
    ],
+  [engine.clui_print_state,
+    [state]
+  ]
 ]
 
 
