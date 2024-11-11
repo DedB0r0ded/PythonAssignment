@@ -1,13 +1,16 @@
 import engine
-import administrator as admin
-import doctor
-import nurse
-import patient
-import receptionist as rcpst
+import administrator.out as admin
+import doctor.out as doctor
+import nurse.out as nurse
+import patient.out as patient
+import receptionist.out as receptionist
 
 
 # ================_STATE_===============
-state = {"IS_RUNNING": True, "DEBUG": True}
+state = {
+  "IS_RUNNING": True,
+  "DEBUG": True
+}
 
 # ==============_FUNCTIONS_=============
 def on_start():
@@ -34,4 +37,4 @@ functions = [
 
 # =============ENTRY_POINT==============
 if __name__ == '__main__':
-  engine.app_run(on_start, on_exit, functions, state)
+  engine.application.app_run(on_start, on_exit, functions, state)
