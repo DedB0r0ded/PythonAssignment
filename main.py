@@ -16,8 +16,10 @@ state = {
 def on_start():
   pass
 
+
 def on_exit():
   pass
+
 
 def plc():
   """Empty placeholder function"""
@@ -28,7 +30,7 @@ plcs = [plc, []]
 functions = [
   [engine.clui_call_menu_login, [
     [
-      [admin.call_main_menu, [[[admin.call_account_menu, [plcs, plcs, plcs]], plcs, plcs, plcs, plcs, ]] ],
+      [admin.call_main_menu, [[[admin.call_account_menu, [[plcs, plcs, plcs]]], plcs, plcs, plcs, plcs, ]] ],
       [lambda: print("`Doctor interface`. Empty for now. Returning to log in menu..."), []],
       [lambda: print("`Nurse interface`. Empty for now. Returning to log in menu..."), []],
       [lambda: print("`Patient interface`. Empty for now. Returning to log in menu..."), []],
