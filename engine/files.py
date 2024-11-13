@@ -6,6 +6,7 @@ def str_add_extension_txt(filename: str) -> str:
   """Adds '.txt' to the end of the file name."""
   return filename + ".txt"
 
+
 def file_create(filename: str) -> bool:
   """
   Creates an empty text file if it doesn't exist.
@@ -19,6 +20,7 @@ def file_create(filename: str) -> bool:
     with open(str_add_extension_txt(filename), 'w') as f:
       return True
 
+
 def file_read_str(filename: str) -> str:
   """
   Reads the whole file as one string if file exists.
@@ -31,6 +33,7 @@ def file_read_str(filename: str) -> str:
   except FileNotFoundError:
     print('File not found. Please check the file path.')
 
+
 def file_read_lines(filename: str) -> list:
   """
   Reads the file line by line if file exists.
@@ -42,6 +45,7 @@ def file_read_lines(filename: str) -> list:
       return [line.strip() for line in f.readlines()]
   except FileNotFoundError:
     print('File not found. Please check the file path.')
+
 
 def file_write_str(filename: str, content: str) -> bool:
   """
