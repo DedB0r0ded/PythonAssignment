@@ -1,4 +1,4 @@
-# ==============_GENERAL_=============
+# ==============__GENERAL__=============
 def build_callable(function_meta: list):
   """Makes a function from [definition, arguments] list"""
   return lambda fun=function_meta[0], args=function_meta[1]: fun(*args)
