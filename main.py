@@ -16,8 +16,10 @@ state = {
 def on_start():
   pass
 
+
 def on_exit():
   pass
+
 
 def plc():
   """Empty placeholder function"""
