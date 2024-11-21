@@ -45,3 +45,5 @@ ERR_PARAM_NOT_CALLABLE: str = "One or many callback parameters of app_run functi
 ERR_MENU_ELEM_NOT_CALLABLE: str = "All list elements must be callables."
 
 MSG_EXIT: str = "Application is shutting down..."
+
+EXT_CSV: str = "csv"
