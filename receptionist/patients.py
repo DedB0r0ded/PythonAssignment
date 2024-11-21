@@ -5,7 +5,7 @@ import engine
 #done TODO: C from CRUD - create. patient_create(name, age, contact, ...) -> patient; clui_patient_create();
 # TODO: R from CRUD - read. patient_read(id) -> patient; patients_read() -> [patient, patient, ...]; clui_patient_read(); clui_patients_read()
 # TODO: change `patient_data` dict to `patients` list
-# TODO: remove capitals from dictionary keys naming (Name > name, Age > age, ...)
+# TODO: remove  capitals from dictionary keys naming (Name > name, Age > age, ...)
 # TODO: make all backend functions work with csv files using engine module
 #2 0f 3TODO: U from CRUD - update. patient_update(id, name, age, ...) -> patient; patient_save(patient); interface_patient_update()
 # doneTODO: D from CRUD - delete. patient_delete(id) -> patient; clui_patient_delete()
