@@ -1,6 +1,6 @@
 import engine
 import administrator as admin
-import doctor
+#import doctor
 import nurse
 import patient
 import receptionist
