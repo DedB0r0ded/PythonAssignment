@@ -45,8 +45,4 @@ functions = [
 
 # =============ENTRY_POINT==============
 if __name__ == '__main__':
-  #engine.application.app_run(on_start, on_exit, functions, state)
-
-
-  engine.csv_write_entity("patients", {"name": "bro", "age": 10, "phone_number": "0123456789", "email": "<EMAIL>"})
-  engine.csv_read("patients")
+  engine.application.app_run(on_start, on_exit, functions, state)
