@@ -7,9 +7,11 @@ import receptionist
 
 
 # ================_STATE_===============
-state = {
+app_state = {
   "IS_RUNNING": True,
-  "DEBUG": True
+  "DEBUG_MODE": True,
+  "ERROR_CODE": 0,
+  "EXIT_CODE": 0
 }
 
 # ==============_FUNCTIONS_=============
@@ -30,19 +32,25 @@ plcs = [plc, []]
 functions = [
   [engine.clui_call_menu_login, [
     [
-      [admin.call_main_menu, [[[admin.call_account_menu, [[plcs, plcs, plcs]]], plcs, plcs, plcs, plcs, ]] ],
+      [admin.call_main_menu,
+       [[[admin.call_account_menu, [[plcs, plcs, plcs]]], plcs, plcs, plcs, plcs, ]]
+       ],
+
       [lambda: print("`Doctor interface`. Empty for now. Returning to log in menu..."), []],
+
       [lambda: print("`Nurse interface`. Empty for now. Returning to log in menu..."), []],
+
       [lambda: print("`Patient interface`. Empty for now. Returning to log in menu..."), []],
+
       [lambda: print("`Receptionist interface`. Empty for now. Returning to log in menu..."), []],
     ]]
    ],
   [engine.clui_print_state,
-    [state]
+    [app_state]
   ]
 ]
 
 
 # =============ENTRY_POINT==============
 if __name__ == '__main__':
-  engine.application.app_run(on_start, on_exit, functions, state)
+  engine.application.app_run(on_start, on_exit, functions, app_state)

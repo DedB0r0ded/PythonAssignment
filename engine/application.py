@@ -45,5 +45,5 @@ def app_exit(exit_callback: callable, app_state: dict):
   app_state["IS_RUNNING"] = False
   exit_callback()
   print(MSG_EXIT)
-  if app_state["DEBUG"]:
+  if app_state["DEBUG_MODE"]:
     print("Exit code: " + str(app_state["EXIT_CODE"]))
