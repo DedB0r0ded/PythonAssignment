@@ -1,7 +1,7 @@
 from random import randint
 
 
-# ==============__ID_GENERATION__=============
+# ==============__COLLECTIONS__=============
 def list_includes_range(lst: list, rng: range):
   lst_set = set(lst)
   rng_set = set(rng)
