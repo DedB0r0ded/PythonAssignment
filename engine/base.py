@@ -1,5 +1,7 @@
 from random import randint
 
+from .globals import *
+
 
 # ==============__COLLECTIONS__=============
 def list_includes_range(lst: list, rng: range):
