@@ -30,7 +30,7 @@ functions = [
 
       [lambda: print("`Doctor interface`. Empty for now. Returning to log in menu..."), []],
 
-      [lambda: print("`Nurse interface`. Empty for now. Returning to log in menu..."), []],
+      [lambda: nurse.main(), []],
 
       [lambda: print("`Patient interface`. Empty for now. Returning to log in menu..."), []],
 

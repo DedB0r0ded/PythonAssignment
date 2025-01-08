@@ -14,7 +14,11 @@ def str_add_extension(filename: str, extension: str) -> str:
 
 
 def file_exists(filename: str, extension: str = "") -> bool:
-  filename_full = str_add_extension(filename, extension)
+  filename_full: str = ""
+  if extension is None:
+    filename_full = filename
+  else:
+    filename_full = str_add_extension(filename, extension)
   try:
     with open(filename_full, 'r') as f:
       return True
