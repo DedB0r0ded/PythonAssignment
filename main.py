@@ -6,14 +6,6 @@ import patient
 import receptionist
 
 
-# ================_STATE_===============
-app_state = {
-  "IS_RUNNING": True,
-  "DEBUG_MODE": True,
-  "ERROR_CODE": 0,
-  "EXIT_CODE": 0
-}
-
 # ==============_FUNCTIONS_=============
 def on_start():
   pass
@@ -38,7 +30,7 @@ functions = [
 
       [lambda: print("`Doctor interface`. Empty for now. Returning to log in menu..."), []],
 
-      [lambda: print("`Nurse interface`. Empty for now. Returning to log in menu..."), []],
+      [lambda: nurse.main(), []],
 
       [lambda: print("`Patient interface`. Empty for now. Returning to log in menu..."), []],
 
@@ -46,11 +38,11 @@ functions = [
     ]]
    ],
   [engine.clui_print_state,
-    [app_state]
+    []
   ]
 ]
 
 
 # =============ENTRY_POINT==============
 if __name__ == '__main__':
-  engine.application.app_run(on_start, on_exit, functions, app_state)
+  engine.application.app_run(on_start, on_exit, functions)

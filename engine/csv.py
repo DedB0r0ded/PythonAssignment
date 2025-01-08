@@ -1,6 +1,7 @@
 from .base import *
 from .files import *
 
+
 def csv_parse_line(header: str, line: str) -> dict:
   return dict(zip(header.strip().split(','), line.strip().split(',')))
 

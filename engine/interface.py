@@ -22,6 +22,6 @@ def clui_call_menu_login(functions: list):
   clui_call_menu(functions, MENU_LOGIN)
 
 
-def clui_print_state(app_state: dict):
-  for key, value in app_state.items():
+def clui_print_state():
+  for key, value in APPLICATION_STATE.items():
     print(str(key) + ": " + str(value))
