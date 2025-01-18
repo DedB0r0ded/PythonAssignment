@@ -1,6 +1,6 @@
 import engine
 import administrator as admin
-#import doctor
+import doctor
 import nurse
 import patient
 import receptionist
@@ -24,17 +24,15 @@ plcs = [plc, []]
 functions = [
   [engine.clui_call_menu_login, [
     [
-      [admin.call_main_menu,
-       [[[admin.call_account_menu, [[plcs, plcs, plcs]]], plcs, plcs, plcs, plcs, ]]
-       ],
+      [lambda: admin.call_main_menu(), []],
 
-      [lambda: print("`Doctor interface`. Empty for now. Returning to log in menu..."), []],
+      [lambda: doctor.main(), []],
 
       [lambda: nurse.main(), []],
 
-      [lambda: print("`Patient interface`. Empty for now. Returning to log in menu..."), []],
+      [lambda: patient.main(), []],
 
-      [lambda: print("`Receptionist interface`. Empty for now. Returning to log in menu..."), []],
+      [lambda: receptionist.receptionist_menu(), []],
     ]]
    ],
   [engine.clui_print_state,

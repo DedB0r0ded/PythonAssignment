@@ -4,17 +4,17 @@ from .interface import *
 
 # ==============APPLICATION_LOGIC=============
 def app_refresh_files_existence():
-  app_set_files_exist(True)
+  app_set_param("ALL_FILES_EXIST", True)
   for file in FILE_NAMES.keys():
     if not file_exists(FILE_NAMES[file], None):
-      app_set_files_exist(False)
+      app_set_param("ALL_FILES_EXIST", False)
       return
 
 
 def app_validate_files_existence():
   app_refresh_files_existence()
   if not app_files_exist():
-    app_set_error_code(UNDEFINED_FILE_NOT_FOUND_ERROR)
+    app_set_param('ERROR_CODE', UNDEFINED_FILE_NOT_FOUND_ERROR)
     raise FileNotFoundError("One or more files are missing.")
 
 
@@ -35,9 +35,10 @@ def app_run(start_callback: callable, exit_callback: callable, menu_functions: l
         raise TypeError(ERR_MENU_ELEM_NOT_CALLABLE)
 
       try:
-        app_validate_files_existence()
+        if(app_enforce_file_check()):
+          app_validate_files_existence()
         clui_call_menu_start(menu_functions)
-        app_set_exit_code(0)
+        app_set_param('EXIT_CODE', 0)
         app_exit(exit_callback)
       except TypeError as e:
         print("Type error: " + str(e))
@@ -46,14 +47,14 @@ def app_run(start_callback: callable, exit_callback: callable, menu_functions: l
 
     except Exception as e:
       print("Error occurred: " + str(e))
-      app_set_exit_code(-1)
+      app_set_param('EXIT_CODE', -1)
       app_exit(exit_callback)
 
 
 def app_exit(exit_callback: callable):
   """Finishes an application.
   :param exit_callback: function called before shutting down the application."""
-  app_set_is_running(False)
+  app_set_param("IS_RUNNING", False)
   exit_callback()
   print(MSG_EXIT)
   if app_debug():

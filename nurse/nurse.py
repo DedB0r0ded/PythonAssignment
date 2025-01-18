@@ -1,15 +1,17 @@
-import engine
-from engine import PATIENTS_FILE, VITALS_FILE, MEDICATION_LOGS_FILE, ROOM_PREP_FILE
-
+import engine as e
 
 def initialize_files():
     """Ensure all necessary files exist."""
-    for file in [PATIENTS_FILE, VITALS_FILE, MEDICATION_LOGS_FILE, ROOM_PREP_FILE]:
+    for file in [e.FILE_NAMES["PATIENTS"], e.FILE_NAMES["VITALS"], e.FILE_NAMES["MEDICATION_LOGS"], e.FILE_NAMES["ROOM_PREP"]]:
         try:
-            open(file, "x").close() 
-        except FileExistsError:
-            pass 
-
+            open(file, "r").close() 
+        except FileNotFoundError:  
+            with open(file, "w") as f:
+                print(f"{file} created.")
+        except PermissionError:
+            print(f"Permission denied: {file}")
+        except IOError:
+            print(f"An I/O error occurred while initializing {file}")
 
 def display_menu():
     """Display the Nurse menu."""
@@ -23,22 +25,24 @@ def display_menu():
     choice = input("Enter your choice: ").strip()
     return choice
 
-
 def view_daily_patient_list():
     """Access a daily list of patients and their required care."""
     print("\n--- Daily Patient List ---")
     try:
-        with open(PATIENTS_FILE, "r") as file:
+        with open(e.FILE_NAMES["PATIENTS"], "r") as file:
             patients = file.readlines()
             if not patients:
                 print("No patients found.")
             else:
                 for patient in patients:
-                    patient_id, name, care_required = patient.strip().split("|")
+                    patient_id, name, care_required = patient.strip().split(",")
                     print(f"ID: {patient_id}, Name: {name}, Care Required: {care_required}")
     except FileNotFoundError:
         print("Patient records not found.")
-
+    except ValueError:
+        print("File data format is invalid.")
+    except IOError:
+        print("An error occurred while accessing the patient file.")
 
 def update_patient_vitals():
     """Update patient vitals and record observations."""
@@ -53,12 +57,15 @@ def update_patient_vitals():
         return
 
     try:
-        with open(VITALS_FILE, "a") as file:
-            file.write(f"{patient_id}|{temperature}|{blood_pressure}|{heart_rate}\n")
+        with open(e.FILE_NAMES["VITALS"], "a") as file:
+            file.write(f"{patient_id},{temperature},{blood_pressure},{heart_rate}\n")
         print("Vitals updated successfully.")
-    except Exception as e:
-        print(f"Error updating vitals: {e}")
-
+    except FileNotFoundError:
+        print("Vitals file not found.")
+    except PermissionError:
+        print("Permission denied while updating vitals.")
+    except IOError:
+        print("An I/O error occurred while updating vitals.")
 
 def manage_medication_logs():
     """Manage medication logs and ensure timely administration."""
@@ -72,12 +79,15 @@ def manage_medication_logs():
         return
 
     try:
-        with open(MEDICATION_LOGS_FILE, "a") as file:
-            file.write(f"{patient_id}|{medication}|{status}\n")
+        with open(e.FILE_NAMES["MEDICATION_LOGS"], "a") as file:
+            file.write(f"{patient_id},{medication},{status}\n")
         print("Medication log updated successfully.")
-    except Exception as e:
-        print(f"Error updating medication logs: {e}")
-
+    except FileNotFoundError:
+        print("Medication logs file not found.")
+    except PermissionError:
+        print("Permission denied while updating medication logs.")
+    except IOError:
+        print("An I/O error occurred while updating medication logs.")
 
 def assist_room_preparation():
     """Assist doctors by preparing rooms for treatment or surgical procedures."""
@@ -90,12 +100,15 @@ def assist_room_preparation():
         return
 
     try:
-        with open(ROOM_PREP_FILE, "a") as file:
-            file.write(f"Room {room_number}|{task_details}\n")
+        with open(e.FILE_NAMES["ROOM_PREP"], "a") as file:
+            file.write(f"Room {room_number},{task_details}\n")
         print("Room preparation task logged successfully.")
-    except Exception as e:
-        print(f"Error logging room preparation: {e}")
-
+    except FileNotFoundError:
+        print("Room preparation file not found.")
+    except PermissionError:
+        print("Permission denied while updating room preparation file.")
+    except IOError:
+        print("An I/O error occurred while updating room preparation file.")
 
 def report_emergency():
     """Report any medical emergencies to the assigned doctor."""
@@ -109,17 +122,18 @@ def report_emergency():
 
     print(f"Emergency reported for Patient ID {patient_id}: {emergency_details}")
 
-
 def terminate_program():
     """Terminate the program gracefully."""
     print("\nThank you for using the Hospital Management System. Goodbye!")
-    exit()
-
+    global running
+    running = False
 
 def main():
     """Main function to drive the Nurse menu."""
     initialize_files()
-    while True:
+    global running
+    running = True
+    while running:
         choice = display_menu()
         if choice == "1":
             view_daily_patient_list()

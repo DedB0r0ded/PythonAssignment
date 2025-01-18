@@ -1,2 +1,2 @@
-from .patients import *
+from .main import *
 

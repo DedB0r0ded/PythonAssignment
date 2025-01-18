@@ -18,13 +18,23 @@ def csv_read(filename: str) -> list:
     return result
 
 
-def csv_write_entity(filename: str, entity: dict):
+def csv_try_write_header(filename: str, entity: dict):
   if not file_exists(filename, EXT_CSV):
     file_create(filename, EXT_CSV)
   if file_is_empty(filename, EXT_CSV):
     header = ','.join(entity.keys())
     file_write_line(filename, header, EXT_CSV)
+
+
+def csv_write_entity(filename: str, entity: dict):
+  csv_try_write_header(filename, entity)
   file_write_line(filename, ','.join(str(value) for value in entity.values()), EXT_CSV)
+
+
+def csv_rewrite(filename: str, entities: list):
+  file_erase(filename, EXT_CSV)
+  for entity in entities:
+    csv_write_entity(filename, entity)
 
 
 def csv_check_unique(filename: str, entity: dict, checked_field: str) -> bool:

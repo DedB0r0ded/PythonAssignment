@@ -95,6 +95,15 @@ def file_write_line(filename: str, content: str, extension: str = "") -> bool:
   return file_write_str(filename, content + "\n", extension)
 
 
+def file_erase(filename: str, extension: str = ""):
+  """
+    Erases the file content.
+    :param extension: string. File extension. If empty, '.txt' will be used.
+    :param filename: string. File name without extension.
+    """
+  with open(str_add_extension(filename, extension), 'w') as f:
+    f.close()
+
 def file_is_empty(filename: str, extension: str = "") -> bool:
   filename_full = str_add_extension(filename, extension)
   try:

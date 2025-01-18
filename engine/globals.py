@@ -25,30 +25,15 @@ UNDEFINED_FILE_NOT_FOUND_ERROR = FILE_NOT_FOUND_ERROR
 APPLICATION_STATE = {
   "IS_RUNNING": True,
   "DEBUG_MODE": True,
+  "ENFORCE_FILE_CHECK": None,
   "ALL_FILES_EXIST": None,
   "ERROR_CODE": 0,
   "EXIT_CODE": 0
 }
 
 
-def app_set_is_running(is_running: bool):
-  APPLICATION_STATE['IS_RUNNING'] = is_running
-
-
-def app_set_debug(debug: bool):
-  APPLICATION_STATE['DEBUG'] = debug
-
-
-def app_set_files_exist(files_exist: bool):
-  APPLICATION_STATE['ALL_FILES_EXIST'] = files_exist
-
-
-def app_set_error_code(error_code: int):
-  APPLICATION_STATE['ERROR_CODE'] = error_code
-
-
-def app_set_exit_code(exit_code: int):
-  APPLICATION_STATE['EXIT_CODE'] = exit_code
+def app_set_param(param_name: str, param_value: int | bool):
+  APPLICATION_STATE[param_name] = param_value
 
 
 def app_is_running():
@@ -70,17 +55,56 @@ def app_error_code():
 def app_exit_code():
   return APPLICATION_STATE['EXIT_CODE']
 
+def app_enforce_file_check():
+  return APPLICATION_STATE['ENFORCE_FILE_CHECK']
+
 
 # ==============_FILE_NAMES_===============
 FILE_NAMES = {
-  "PATIENTS":               "./files/patients.txt",
-  "VITALS_FILE":            "./files/vitals.txt",
-  "MEDICATION_LOGS_FILE":   "./files/medication_logs.txt",
-  "ROOM_PREP_FILE":         "./files/room_prep.txt",
-  "ACCOUNT_FILE":           "./files/accounts.txt"
+  "APPOINTMENTS":           "./files/appointments.txt",
+  "BILLING":                "./files/billing.txt",
+  "CHECK_IN":               "./files/check_in.txt",
+  "CHECK_OUT":              "./files/check_out.txt",
+
+  "ACCOUNTS":               "./files/accounts.csv",
+  "RESOURCES":              ",/files/resources.csv",
+  
+  "PATIENTS_RECEPTIONIST":  "./files/patients.txt",
+
+  "PATIENTS_DOCTOR":        "./files/patient_data.txt",
+  "DOCTORS":                "./files/doctor_data.txt",
+
+  "PATIENTS":               "./files/patients.csv",
+  "VITALS":                 "./files/vitals.csv",
+  "MEDICATION_LOGS":        "./files/medication_logs.csv",
+  "ROOM_PREP":              "./files/room_prep.csv",
 }
 
-PATIENTS_FILE = FILE_NAMES["PATIENTS_FILE"]
-VITALS_FILE = FILE_NAMES["VITALS_FILE"]
-MEDICATION_LOGS_FILE = FILE_NAMES["MEDICATION_LOGS_FILE"]
-ROOM_PREP_FILE = FILE_NAMES["ROOM_PREP_FILE"]
+
+# ============____STRINGS____============
+MENU_START: str = """
+==========
+1. Log in
+2. Application info
+0. Exit
+==========
+"""
+
+MENU_LOGIN: str = """
+=================
+1. Administrator
+2. Doctor
+3. Nurse
+4. Patient
+5. Receptionist
+0. Back
+=================
+"""
+
+ERR_INVALID_OPTION: str = "Invalid option. Try again."
+ERR_PARAM_NOT_CALLABLE: str = "One or many callback parameters of app_run function are not callables"
+ERR_MENU_ELEM_NOT_CALLABLE: str = "All list elements must be callables."
+
+MSG_EXIT: str = "Application is shutting down..."
+
+EXT_CSV: str = "csv"
