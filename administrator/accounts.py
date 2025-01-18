@@ -1,7 +1,6 @@
 import engine
 
 
-ACCOUNT_FILE: str = "accounts"
 
 # Account CRUD
 def account_create(account: dict = None):

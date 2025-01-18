@@ -73,10 +73,11 @@ def app_exit_code():
 
 # ==============_FILE_NAMES_===============
 FILE_NAMES = {
-  "PATIENTS_FILE":          "./files/patients.txt",
+  "PATIENTS":               "./files/patients.txt",
   "VITALS_FILE":            "./files/vitals.txt",
   "MEDICATION_LOGS_FILE":   "./files/medication_logs.txt",
   "ROOM_PREP_FILE":         "./files/room_prep.txt",
+  "ACCOUNT_FILE":           "./files/accounts.txt"
 }
 
 PATIENTS_FILE = FILE_NAMES["PATIENTS_FILE"]
