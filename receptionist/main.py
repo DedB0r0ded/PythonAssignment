@@ -1,4 +1,3 @@
-from ctypes import pydll
 from datetime import datetime
 
 import engine
@@ -12,6 +11,54 @@ def find_patient(patient_id):
     return patient
   except IndexError:
     return
+
+
+def show_unpaid_services(patient_id):
+  unpaid_services = [s for s in engine.csv_read(engine.FILE_NAMES["SERVICES"]) if s["patient_id"] == patient_id and s["status"] == "payment_pending"]
+  for service in unpaid_services:
+    billing = [b for b in engine.csv_read(engine.FILE_NAMES["BILLING"]) if b["service_id"] == service["id"]][-1]
+    required_amount = int(billing['total']) - int(billing['paid'])
+    print(f"Id: {service['id']}, Date: {service['date']}, Description: {service['description']}, Required amount: {required_amount}")
+
+
+def pay_for_service():
+  patient_id = input("Enter patient ID: ")
+  patient = find_patient(patient_id)
+  show_unpaid_services(patient_id)
+  service_id = input("Enter service id: ")
+  service = {}
+  services = [s for s in engine.csv_read(engine.FILE_NAMES["SERVICES"]) if s["id"] == service_id]
+  try:
+    service = services[0]
+  except IndexError:
+    print("Service not found")
+    return
+  if service["status"] in ("paid", "done"):
+    print("Service is paid")
+    return
+  elif service["status"] != "payment_pending":
+    print("Invalid status")
+    return
+  amount = int(input("Enter amount: "))
+  billing = [b for b in engine.csv_read(engine.FILE_NAMES["BILLING"]) if b["service_id"] == service_id][-1]
+  paid_new = int(billing["paid"]) + amount
+
+  if paid_new < int(billing["total"]):
+    billing.update({"paid": paid_new, "date": datetime.now().date()})
+    engine.csv_write_billing(billing)
+    return
+
+  if paid_new > int(billing["total"]):
+    change = paid_new - int(billing["total"])
+    print(f"Change: {change}")
+    paid_new -= change
+
+  billing.update({"paid": paid_new, "date": datetime.now().date()})
+  engine.csv_write_billing(billing)
+  services = engine.csv_read(engine.FILE_NAMES["SERVICES"])
+  service["status"] = "paid"
+  services = [service if s["id"] == service_id else s for s in services]
+  engine.csv_rewrite(engine.FILE_NAMES["SERVICES"], services)
 
 
 # Function to register new patient
@@ -96,17 +143,15 @@ def patient_check_out():
 
 
 # Function to generate billing details
-def generate_billing():
+def generate_billing_details():
   print("Generate Billing Details")
-  patient_id = input("Enter Patient ID: ")
-  service_details = input("Enter Service Used (e.g., consultation, tests): ")
-  amount = input("Enter Amount: ")
-  try:
-    with open("billing.txt", "a") as file:
-      file.write(f"{patient_id},{service_details},{amount}\n")
-    print("Billing Details Generated Successfully!")
-  except Exception as e:
-    print(f"Error generating billing details: {e}")
+  services = [
+    {"price": 200, "name": "Check-up"},
+    {"price": 600, "name": "Appointment"},
+    {"price": 2000, "name": "Surgery"},
+  ]
+  for service in services:
+    print(f"Service: {service['name']}, Price: {service['price']}")
 
 
 # Function to update existing patient information
@@ -136,7 +181,8 @@ def receptionist_menu():
     print("4. Check-Out Patient")
     print("5. Generate Billing Details")
     print("6. Update Patient Information")
-    print("7. Exit")
+    print("7. Pay for service")
+    print("8. Exit")
 
     choice = input("Choose an option: ")
 
@@ -149,10 +195,12 @@ def receptionist_menu():
     elif choice == "4":
       patient_check_out()
     elif choice == "5":
-      generate_billing()
+      generate_billing_details()
     elif choice == "6":
       update_patient()
     elif choice == "7":
+      pay_for_service()
+    elif choice == "8":
       print("Exiting...")
       break
     else:
