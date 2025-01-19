@@ -20,7 +20,7 @@ def schedule_appointment():
     doctor_name = input("Enter Doctor's Name: ")
     appointment_date = input("Enter Appointment Date (DD/MM/YYYY): ")
     try:
-        with open("appointments.txt", "a") as file:
+        with open("appointments.csv", "a") as file:
             file.write(f"{patient_id},{doctor_name},{appointment_date}\n")
         print("Appointment Scheduled Successfully!")
     except Exception as e:

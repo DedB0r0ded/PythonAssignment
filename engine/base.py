@@ -20,22 +20,6 @@ def id_validate_int_constraints(min, max, existent_ids):
     raise ValueError("\'existent_ids\' includes the whole [\'min\', \'max\'] range.")
 
 
-def id_generate_int_unsafe(min, max, existent_ids) -> int:
-  id = randint(min, max)
-  for i in existent_ids:
-    if id == i:
-      return id_generate_int_unsafe(min, max, existent_ids)
-  return id
-
-
-# TODO: rename this function. Safe version of id_generate_int(...)
-def id_generate_int(min=0, max=100_000_000, existent_ids: list | None = None):
-  id_validate_int_constraints(min, max, existent_ids)
-  if existent_ids is None or len(existent_ids) == 0:
-    return randint(min, max)
-  return id_generate_int_unsafe(min, max, existent_ids)
-
-
 # ==============__CALLABLES__=============
 def build_callable(function_meta: list):
   """Makes a function from [definition, arguments] list"""

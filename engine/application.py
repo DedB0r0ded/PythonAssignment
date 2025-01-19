@@ -6,7 +6,7 @@ from .interface import *
 def app_refresh_files_existence():
   app_set_param("ALL_FILES_EXIST", True)
   for file in FILE_NAMES.keys():
-    if not file_exists(FILE_NAMES[file], None):
+    if not file_exists(FILE_NAMES[file], None, False):
       app_set_param("ALL_FILES_EXIST", False)
       return
 
@@ -25,6 +25,7 @@ def app_run(start_callback: callable, exit_callback: callable, menu_functions: l
   :param exit_callback: function called before shutting down the application.
   :param menu_functions: functions to call menu and functions called by user choice in menu (with list of arguments).
   """
+  app_refresh_app_state()
   while app_is_running():
     try:
       if not callable(exit_callback):
@@ -35,7 +36,9 @@ def app_run(start_callback: callable, exit_callback: callable, menu_functions: l
         raise TypeError(ERR_MENU_ELEM_NOT_CALLABLE)
 
       try:
-        if(app_enforce_file_check()):
+        if app_start_callback():
+          start_callback()
+        if app_enforce_file_check():
           app_validate_files_existence()
         clui_call_menu_start(menu_functions)
         app_set_param('EXIT_CODE', 0)
@@ -55,7 +58,8 @@ def app_exit(exit_callback: callable):
   """Finishes an application.
   :param exit_callback: function called before shutting down the application."""
   app_set_param("IS_RUNNING", False)
-  exit_callback()
+  if app_exit_callback():
+    exit_callback()
   print(MSG_EXIT)
   if app_debug():
     print("Exit code: " + str(app_exit_code()))

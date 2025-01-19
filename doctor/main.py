@@ -1,95 +1,51 @@
 from datetime import datetime
 
-import engine as e
+import engine
+from engine import csv_write_service, csv_write_billing
 
 
 #Load patient data from file
-def load_patient_data(file_name):
-  patient_data = {}
-  try:
-    with open(file_name, "r") as file:
-      for line in file:
-        line = line.strip()
-        parts = line.split(", ")
-        patient_id = parts[0]
-        patient_name = parts[1]
-        patient_age = int(parts[2])
-        contact_number = parts[3]
-        diagnosis = parts[4] if len(parts) > 4 else ""
-        prescription = parts[5] if len(parts) > 5 else ""
-        treatment_plan = parts[6] if len(parts) > 6 else ""
-        appointment_date = parts[7] if len(parts) > 7 else ""
-        if len(parts) > 8:
-          medical_history = parts[8:-1]
-          hospital_status = parts[-1]
-        else:
-          medical_history = []
-          hospital_status = "Ongoing"
-
-        patient_data[patient_id] = {
-          "Name": patient_name,
-          "Age": patient_age,
-          "Contact Number": contact_number,
-          "Diagnosis": diagnosis,
-          "Prescription": prescription,
-          "Treatment Plan": treatment_plan,
-          "Appointment Date": appointment_date,
-          "Medical History": medical_history,
-          "Hospital Status": hospital_status
-        }
-  except FileNotFoundError:
-    print(f"Error: The file '{file_name}' was not found.")
-  except Exception as e:
-    print(f"An error occurred: {e}")
+def load_patient_data():
+  patient_data = engine.csv_read(engine.FILE_NAMES["PATIENTS"])
   return patient_data
 
 
 #load doctor data from file
-def load_doctor_data(file_name):
-  doctor_data = {}
-  try:
-    with open(file_name, "r") as file:
-      for line in file:
-        line = line.strip()
-        parts = line.split(", ")
-        doctor_id = parts[0]
-        doctor_name = parts[1]
-        patients = parts[2].split(";") if len(parts) > 2 else []
-        doctor_data[doctor_id] = {"Name": doctor_name, "Patients": patients}
-  except FileNotFoundError:
-    print(f"Error: The file '{file_name}' was not found.")
-  except Exception as e:
-    print(f"An error occurred: {e}")
+def load_doctor_data():
+  doctor_data = engine.csv_read(engine.FILE_NAMES["DOCTORS"])
   return doctor_data
+
+
+#Sacing the medical history data
+def save_medical_history_record(record):
+  old = engine.csv_read(engine.FILE_NAMES["MEDICAL_HISTORY"])
+  new = [m if m["id"] != record["id"] else record for m in old]
+  engine.csv_rewrite(engine.FILE_NAMES["MEDICAL_HISTORY"], new)
+
+
+#Saving the patient's data
+def save_patient_data(patient_data):
+  try:
+    engine.csv_rewrite(engine.FILE_NAMES["PATIENTS"], patient_data)
+  except Exception as e:
+    print(f"An error occurred while saving patient data: {e}")
 
 
 #View the assigned patients for doctor
 def doctor_view_patients(doctor_id, doctor_data, patient_data):
-  try:
-    if doctor_id in doctor_data:
-      doctor_info = doctor_data[doctor_id]
-      print(f"\nDoctor: {doctor_info['Name']}")
-      patient_list = doctor_info.get("Patients", [])
-
-      if not patient_list:
-        print("No patients assigned to this doctor.")
-      else:
-        print("\nAssigned Patients:")
-        for patient_id in patient_list:
-          if patient_id in patient_data:
-            patient_info = patient_data[patient_id]
-            print(f"Patient ID: {patient_id}")
-            print(f"Name: {patient_info['Name']}")
-            print(f"Age: {patient_info['Age']}")
-            print(f"Contact Number: {patient_info['Contact Number']}")
-            print("-" * 20)
-          else:
-            print(f"Patient ID: {patient_id} (Details not found)")
-    else:
-      print("Doctor ID not found.")
-
-  except Exception as e:
-    print(f"An error occurred: {e}")
+  services = engine.csv_read(engine.FILE_NAMES["SERVICES"])
+  appointments = [s for s in services if s["is_appointment"] and s["doctor_id"] == doctor_id]
+  patient_ids = [a["patient_id"] for a in appointments]
+  patients = [p for p in engine.csv_read(engine.FILE_NAMES["PATIENTS"]) if p["id"] in patient_ids]
+  if not patients:
+    print("No patients assigned to this doctor.")
+  else:
+    print("\nAssigned Patients:")
+    for patient in patients:
+      print(f"Patient ID: {patient['id']}",sep="",end="; ")
+      print(f"Name: {patient['name']}",sep="",end="; ")
+      print(f"Age: {patient['age']}",sep="",end="; ")
+      print(f"Contact Number: {patient['phone_number']}",sep="",end=".\n")
 
 
 #Prompt the doctor ID and view assigned patients
@@ -106,56 +62,37 @@ def doctor_show_list(doctor_data, patient_data):
 
 #Doctor's Interface
 def launch_doctor_interface():
-  doctor_data = load_doctor_data(e.FILE_NAMES["DOCTORS"])
-  patient_data = load_patient_data(e.FILE_NAMES["PATIENTS_DOCTOR"])
+  doctor_data = load_doctor_data()
+  patient_data = load_patient_data()
 
   doctor_show_list(doctor_data, patient_data)
 
 
 #Upating the patient's record
 def update_patient_record(patient_data, patient_id):
-
-  if patient_id in patient_data:
-    print(f"\nUpdating record for patient {patient_data[patient_id]['Name']} ({patient_id})")
+  patient_ids = [p["id"] for p in patient_data]
+  if patient_id in patient_ids:
+    patient = [p for p in patient_data if p["id"] == patient_id][0]
+    print(f"\nUpdating record for patient {patient['name']} ({patient_id})")
 
     diagnosis = input("Enter diagnosis: ")
     prescription = input("Enter prescription: ")
     treatment_plan = input("Enter treatment plan: ")
-    medical_history = input("Enter medical history (if applicable): ")
 
-    patient_data[patient_id]["Diagnosis"] = diagnosis
-    patient_data[patient_id]["Prescription"] = prescription
-    patient_data[patient_id]["Treatment Plan"] = treatment_plan
-    patient_data[patient_id]["Medical History"] = medical_history
+    patient["diagnosis"] = diagnosis
+    patient["prescription"] = prescription
+    patient["treatment_plan"] = treatment_plan
 
-    print(f"Record for patient {patient_data[patient_id]['Name']} updated successfully.")
+    print(f"Record for patient {patient['name']} updated successfully.")
+    patient_data_new = [patient if p["id"] == patient_id else p for p in patient_data]
+    save_patient_data(patient_data_new)
   else:
     print("Patient ID not found. Please try again.")
 
 
-#Saving the patient's data
-def save_patient_data(file_name, patient_data):
-  try:
-    with open(file_name, "w") as file:
-      for patient_id, data in patient_data.items():
-        if isinstance(data['Medical History'], list):
-          medical_history = ', '.join(data['Medical History'])
-        else:
-          medical_history = data['Medical History']
-
-        line = f"{patient_id}, {data['Name']}, {data['Age']}, {data['Contact Number']}, {data['Diagnosis']}, {data['Prescription']}, {data['Treatment Plan']}, {data['Appointment Date']}, {medical_history}, {data['Hospital Status']}\n"
-        file.write(line)
-    print("Patient data saved successfully...")
-  except Exception as e:
-    print(f"An error occurred while saving patient data: {e}")
-
-
 #Prompt patient ID for updating purposes
 def patient_update_manager():
-  file_name = e.FILE_NAMES["PATIENTS_DOCTOR"]
-
-  patient_data = load_patient_data(file_name)
-
+  patient_data = load_patient_data()
   while True:
     patient_id = input("\nEnter Patient ID to update record (or type 'exit' to quit): ")
 
@@ -165,60 +102,52 @@ def patient_update_manager():
 
     update_patient_record(patient_data, patient_id)
 
-    save_patient_data(file_name, patient_data)
-
 
 #Scheduling appointment date
-def doctor_appoints_patient(patient_data, patient_id, file_name):
-  if patient_id in patient_data:
-    print(f"\nScheduling a follow-up appointment for patient {patient_data[patient_id]['Name']} ({patient_id})")
-
-    while True:
-      appointment_date = input("Enter follow-up appointment date (YYYY-MM-DD): ").strip()
-
-      try:
-        datetime.strptime(appointment_date, "%Y-%m-%d")
-        patient_data[patient_id]["Appointment Date"] = appointment_date
-        print(
-          f"Appointment for patient {patient_data[patient_id]['Name']} successfully scheduled for {appointment_date}.")
-
-        save_patient_data(file_name, patient_data)
-        break
-      except ValueError:
-        print("Invalid date format. Please enter the date in YYYY-MM-DD format.")
-  else:
+def doctor_appoints_patient(patient_data, doctor_data):
+  patient_id = input("Enter the Patient ID to schedule an appointment: ").strip()
+  doctor_id = input("Enter the Doctor ID to schedule an appointment: ").strip()
+  patient = [p for p in patient_data if p["id"] == patient_id][0]
+  doctor = [p for p in doctor_data if p["id"] == doctor_id][0]
+  if not patient:
     print("Patient ID not found. Please check the ID and try again.")
+    return
+  while True:
+    appointment_date = input("Enter follow-up appointment date (YYYY-MM-DD): ").strip()
+    try:
+      datetime.strptime(appointment_date, "%Y-%m-%d")
+      service_id = csv_write_service({"doctor_id": doctor_id, "patient_id": patient_id, "date": appointment_date, "description": f"Appointment for patient {patient['name']} ({patient_id}) from Doctor {doctor['name']} ({doctor_id})","status":"payment_pending","is_appointment":True})
+      csv_write_billing({"patient_id": patient_id, "service_id": service_id, "total": 600, "paid": 0, "date": datetime.now().date()})
+      print(f"Appointment for patient {patient['name']} successfully scheduled for {appointment_date}.")
+      break
+    except ValueError:
+      print("Invalid date format. Please enter the date in YYYY-MM-DD format.")
 
 
 #Patient's full details
 def view_patient_details(patient_data, patient_id):
-  if patient_id in patient_data:
-    patient = patient_data[patient_id]
-    print(f"\n=== Details for {patient['Name']} ({patient_id}) ===")
-    print(f"Age: {patient['Age']}")
-    print(f"Contact Number: {patient['Contact Number']}")
-    print(f"Diagnosis: {patient['Diagnosis']}")
-    print(f"Prescription: {patient['Prescription']}")
-    print(f"Treatment Plan: {patient['Treatment Plan']}")
-    print(f"Appointment Date: {patient['Appointment Date']}")
-    print("\nMedical History:")
-    medical_history = [entry for entry in patient["Medical History"] if entry.strip()]  # Filter empty entries
-
-    if not medical_history:
-      print("  No medical history available.")
-    else:
-      for index, entry in enumerate(medical_history, start=1):
-        print(f"  {index}. {entry}")
-  else:
+  patient = [p for p in patient_data if p["id"] == patient_id][0]
+  if not patient:
     print("Patient ID not found.")
+    return
+  print(f"\n=== Details for {patient['name']} ({patient_id}) ===")
+  print(f"Age: {patient['age']}")
+  print(f"Contact Number: {patient['phone_number']}")
+  print(f"Diagnosis: {patient['diagnosis']}")
+  print(f"Prescription: {patient['prescription']}")
+  print(f"Treatment Plan: {patient['treatment_plan']}")
+  print("\nMedical History:")
+  medical_history = [entry for entry in engine.csv_read(engine.FILE_NAMES["MEDICAL_HISTORY"]) if entry["patient_id"] == patient_id]  # Filter empty entries
+
+  if not medical_history:
+    print("  No medical history available.")
+  else:
+    for index, entry in enumerate(medical_history, start=1):
+      print(f"  {index}. {entry["date"]} - {entry['action']}; HR: {entry['HR']}, SYS: {entry['SYS']}, DIA: {entry['DIA']}")
 
 
 #Doctor to view patient's full details
-def doctor_view_menu():
-
-  file_name = e.FILE_NAMES["PATIENTS_DOCTOR"]
-  patient_data = load_patient_data(file_name)
-
+def doctor_view_menu(patient_data):
   while True:
     print("\n=== Doctor's Patient Management Menu ===")
     print("1. View Medical History and Treatment Logs")
@@ -237,51 +166,46 @@ def doctor_view_menu():
 
 #Doctor recommend patient to discharge or stay further based on treatment status
 def issue_discharge_or_recommendation(patient_data, patient_id):
-  if patient_id in patient_data:
-    patient = patient_data[patient_id]
+  patient = [p for p in patient_data if p["id"] == patient_id][0]
 
-    print(f"\nPatient: {patient['Name']} ({patient_id})")
-    print(f"Diagnosis: {patient['Diagnosis']}")
-    print(f"Treatment Plan: {patient['Treatment Plan']}")
-
-    #Check patient has completed their treatment or is still under care
-    if patient["Hospital Status"] == "Ongoing":
-      recommendation = input(
-        "The patient is still under treatment. Do you recommend a further stay? (yes/no): ").strip().lower()
-      if recommendation == "yes":
-        print(f"Recommendation: {patient['Name']} should remain in the hospital for further treatment.")
-        patient_data[patient_id]["Hospital Status"] = "Further Stay Recommended"
-      elif recommendation == "no":
-        print(f"Discharge Approved: {patient['Name']} can be discharged.")
-        patient_data[patient_id]["Hospital Status"] = "Discharged"
-      else:
-        print("Invalid input. Please respond with 'yes' or 'no'.")
-    elif patient["Hospital Status"] == "Discharged":
-      print(f"{patient['Name']} has already been discharged.")
-    elif patient["Hospital Status"] == "Further Stay Recommended":
-      print(f"{patient['Name']} has been recommended for further stay.")
-  else:
+  if not patient:
     print("Patient ID not found.")
+    return
 
-def patient_discharge_manager():
-  file_name = e.FILE_NAMES["PATIENTS_DOCTOR"]
-  patient_data = load_patient_data(file_name)
+  print(f"\nPatient: {patient['name']} ({patient_id})")
+  print(f"Diagnosis: {patient['diagnosis']}")
+  print(f"Treatment Plan: {patient['treatment_plan']}")
 
+  #Check patient has completed their treatment or is still under care
+  if patient["status"] == "hospitalized":
+    recommendation = input(
+      "The patient is still under treatment. Do you recommend a further stay? (yes/no): ").strip().lower()
+    if recommendation == "yes":
+      print(f"Recommendation: {patient['name']} should remain in the hospital for further treatment.")
+      patient["status"] = "hospitalized"
+    elif recommendation == "no":
+      print(f"Discharge Approved: {patient['name']} can be discharged.")
+      patient["status"] = "discharged"
+    else:
+      print("Invalid input. Please respond with 'yes' or 'no'.")
+  elif patient["status"] == "discharged":
+    print(f"{patient['name']} has already been discharged.")
+  patient_data_new = [patient if p["id"] == patient_id else p for p in patient_data]
+  save_patient_data(patient_data_new)
+
+
+def patient_discharge_manager(patient_data):
   while True:
     print("\nPatient Discharge Manager")
     patient_id = input("Enter Patient ID to update status (or type 'exit' to quit): ").strip()
-
     if patient_id.lower() == "exit":
       print("Exiting the program. Goodbye!")
       break
-
     issue_discharge_or_recommendation(patient_data, patient_id)
-    save_patient_data(file_name, patient_data)
 
 
 def main():
-  doctor_file, patient_file = e.FILE_NAMES["DOCTORS"], e.FILE_NAMES["PATIENTS_DOCTOR"]
-  doctor_data, patient_data = load_doctor_data(doctor_file), load_patient_data(patient_file)
+  doctors, patients = load_doctor_data(), load_patient_data()
   while True:
     print("\nDoctor's Menu:")
     print("1. View Personal Patient List")
@@ -289,24 +213,20 @@ def main():
     print("3. Schedule Follow-Up Appointments")
     print("4. View Medical History and Treatment Logs")
     print("5. Issue Discharge Approvals or Recommend Further Stay")
-    print("6. Exit")
+    print("6. Log out")
     choice = input("Select an option: ").strip()
     if choice == "1":
       launch_doctor_interface()
     elif choice == "2":
       patient_update_manager()
     elif choice == "3":
-      patient_id = input("Enter the Patient ID to schedule an appointment: ").strip()
-      doctor_appoints_patient(patient_data, patient_id, patient_file)
+      doctor_appoints_patient(patients, doctors)
     elif choice == "4":
-      doctor_view_menu()
+      doctor_view_menu(patients)
     elif choice == "5":
-      patient_discharge_manager()
+      patient_discharge_manager(patients)
     elif choice == "6":
       print("Exiting doctor menu...")
       break
     else:
       print("Invalid option. Try again.")
-
-if __name__ == "__main__":
-  main()

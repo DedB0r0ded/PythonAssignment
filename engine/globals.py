@@ -21,15 +21,67 @@ FILE_NOT_FOUND_ERROR = 3 * EXCEPTION_TYPE_OFFSET
 ID_VALIDATION_ERROR = VALUE_ERROR + (1 * 10 ** ERROR_TYPE_OFFSET)
 UNDEFINED_FILE_NOT_FOUND_ERROR = FILE_NOT_FOUND_ERROR
 
+
+# ==============_FILE_NAMES_===============
+FILE_NAMES = {
+  "APP_STATE":              "./files/app_state.csv",
+
+  "IDS":                    "./files/ids.csv",
+  "SERVICES":               "./files/services.csv",
+  "BILLING":                "./files/billing.csv",
+  "USERS":                  "./files/users.csv",
+  "RESOURCES":              "./files/resources.csv",
+  "DOCTORS":                "./files/doctors.csv",
+  "PATIENTS":               "./files/patients.csv",
+  "MEDICATION_LOGS":        "./files/medication_logs.csv",
+  "MEDICAL_HISTORY":        "./files/medical_history.csv",
+  "ROOM_PREP":              "./files/room_prep.csv",
+}
+DEEP_FILE_NAMES = dict(zip(FILE_NAMES.keys(), ['.' + v for v in FILE_NAMES.values()]))
+
+
 # ==============_APPLICATION_STATE_=============
 APPLICATION_STATE = {
-  "IS_RUNNING": True,
-  "DEBUG_MODE": True,
-  "ENFORCE_FILE_CHECK": None,
-  "ALL_FILES_EXIST": None,
+  "IS_RUNNING": False,
+  "DEBUG_MODE": False,
+  "ENFORCE_FILE_CHECK": False,
+  "ALL_FILES_EXIST": False,
+  "START_CALLBACK": False,
+  "EXIT_CALLBACK": False,
   "ERROR_CODE": 0,
   "EXIT_CODE": 0
 }
+
+
+def __file_read_lines(filename: str) -> list:
+  try:
+    with open(filename, 'r') as f:
+      return [line.strip() for line in f.readlines()]
+  except FileNotFoundError:
+    print(f'File \"{filename}\" not found. Please check the file path.')
+
+
+def __csv_read(filename: str) -> list:
+  lines = __file_read_lines(filename)
+  header_lst = map(str.strip, lines.pop(0).strip().split(','))
+  result = []
+  for line in lines:
+    line_lst = map(str.strip, line.strip().split(','))
+    result.append(dict(zip(header_lst, line_lst )))
+  return result
+
+
+def app_refresh_app_state():
+  with open(FILE_NAMES["APP_STATE"], "r") as f:
+    f.readlines()
+  state_file = __csv_read(FILE_NAMES["APP_STATE"])[0]
+  for k in state_file.keys():
+    if state_file[k] == 'True':
+      APPLICATION_STATE[k] = True
+    elif state_file[k] == 'False':
+      APPLICATION_STATE[k] = False
+    else:
+      APPLICATION_STATE[k] = int(state_file[k])
 
 
 def app_set_param(param_name: str, param_value: int | bool):
@@ -55,38 +107,24 @@ def app_error_code():
 def app_exit_code():
   return APPLICATION_STATE['EXIT_CODE']
 
+
 def app_enforce_file_check():
   return APPLICATION_STATE['ENFORCE_FILE_CHECK']
 
 
-# ==============_FILE_NAMES_===============
-FILE_NAMES = {
-  "APPOINTMENTS":           "./files/appointments.txt",
-  "BILLING":                "./files/billing.txt",
-  "CHECK_IN":               "./files/check_in.txt",
-  "CHECK_OUT":              "./files/check_out.txt",
+def app_start_callback():
+  return APPLICATION_STATE['START_CALLBACK']
 
-  "ACCOUNTS":               "./files/accounts.csv",
-  "RESOURCES":              ",/files/resources.csv",
-  
-  "PATIENTS_RECEPTIONIST":  "./files/patients.txt",
 
-  "PATIENTS_DOCTOR":        "./files/patient_data.txt",
-  "DOCTORS":                "./files/doctor_data.txt",
-
-  "PATIENTS":               "./files/patients.csv",
-  "VITALS":                 "./files/vitals.csv",
-  "MEDICATION_LOGS":        "./files/medication_logs.csv",
-  "ROOM_PREP":              "./files/room_prep.csv",
-}
+def app_exit_callback():
+  return APPLICATION_STATE['EXIT_CALLBACK']
 
 
 # ============____STRINGS____============
 MENU_START: str = """
 ==========
 1. Log in
-2. Application info
-0. Exit
+0. Quit
 ==========
 """
 
